@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>プロンプトチェッカー</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="intro" aria-labelledby="app-title">
+        <div class="intro-copy">
+          <p class="eyebrow">Prompt Quality Checker</p>
+          <h1 id="app-title">プロンプトチェッカー</h1>
+          <p class="lead">
+            入力したプロンプトの弱点を確認し、コピーして使える改善版を生成します。
+          </p>
+
+          <form class="input-panel" id="prompt-form">
+            <div class="panel-heading">
+              <div>
+                <p class="section-label">Input</p>
+                <h2>プロンプト入力欄</h2>
+              </div>
+              <button class="ghost-button" type="button" id="sample-button">例を入れる</button>
+            </div>
+
+            <label class="sr-only" for="prompt-input">診断したいプロンプト</label>
+            <textarea
+              id="prompt-input"
+              name="prompt"
+              maxlength="8000"
+              placeholder="例: 新商品の告知文を作ってください"
+              required
+            ></textarea>
+
+            <div class="input-meta">
+              <span id="char-count">0 / 8000</span>
+              <span>機密情報やパスワードは入力しないでください。</span>
+            </div>
+
+            <div class="actions">
+              <button class="primary-button" type="submit" id="analyze-button">診断する</button>
+              <button class="secondary-button" type="button" id="reset-button">リセット</button>
+            </div>
+            <p class="status" id="status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+        <img
+          class="intro-image"
+          src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80"
+          alt="ノートパソコンで文章を確認しているデスク"
+        >
+      </section>
+
+      <section class="workspace" aria-label="プロンプト診断">
+        <section class="output-panel" aria-labelledby="prompt-output-title">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">Original Output</p>
+              <h2 id="prompt-output-title">入力したプロンプトから得られる結果</h2>
+            </div>
+          </div>
+          <div class="answer-box" id="original-output">
+            診断すると、入力したプロンプトから得られる回答例がここに表示されます。
+          </div>
+        </section>
+
+        <section class="result-panel" aria-labelledby="result-title">
+          <div class="panel-heading">
+            <div>
+              <p class="section-label">Feedback</p>
+              <h2 id="result-title">診断結果</h2>
+            </div>
+            <span class="mode-badge" id="mode-badge" hidden>Local</span>
+          </div>
+
+          <div class="result-content" id="result-content" hidden>
+            <div class="score-row">
+              <div class="score-ring" id="score-ring" aria-label="総合スコア">
+                <span id="score-value">0</span>
+              </div>
+              <p id="summary"></p>
+            </div>
+
+            <div class="result-block">
+              <h3>良い点</h3>
+              <ul id="strengths"></ul>
+            </div>
+
+            <div class="result-block">
+              <h3>優先して直す点</h3>
+              <div id="issues"></div>
+            </div>
+
+            <details class="result-block">
+              <summary>確認したいこと</summary>
+              <ul id="questions"></ul>
+            </details>
+
+            <div class="prompt-output">
+              <div class="prompt-output-heading">
+                <h3>こんなプロンプトにすると、より精度の高い回答を得られます！</h3>
+                <div class="copy-actions">
+                  <button class="secondary-button" type="button" id="reuse-button">入力欄へ戻す</button>
+                  <button class="primary-button" type="button" id="copy-button">コピー</button>
+                </div>
+              </div>
+              <pre id="improved-prompt"></pre>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
