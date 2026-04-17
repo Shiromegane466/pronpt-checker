@@ -5,8 +5,11 @@ import { extname, join, normalize } from "node:path";
 const PORT = Number(process.env.PORT || 5173);
 const ROOT = process.cwd();
 const PUBLIC_DIR = join(ROOT, "public");
-const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 const MAX_INPUT_LENGTH = 8000;
+
+await loadDotEnv();
+
+const MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -78,6 +81,15 @@ const responseSchema = {
 
 const server = http.createServer(async (req, res) => {
   try {
+    if (req.method === "GET" && req.url === "/api/health") {
+      sendJson(res, 200, {
+        ok: true,
+        hasOpenAIKey: Boolean(process.env.OPENAI_API_KEY),
+        model: MODEL
+      });
+      return;
+    }
+
     if (req.method === "POST" && req.url === "/api/analyze") {
       await handleAnalyze(req, res);
       return;
@@ -99,7 +111,25 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Prompt checker running at http://localhost:${PORT}`);
+  console.log(`OPENAI_API_KEY ${process.env.OPENAI_API_KEY ? "is set" : "is not set"}`);
 });
+
+async function loadDotEnv() {
+  try {
+    const envText = await readFile(join(ROOT, ".env"), "utf8");
+    for (const line of envText.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+      if (!match) continue;
+      const [, key, rawValue] = match;
+      if (process.env[key]) continue;
+      process.env[key] = rawValue.trim().replace(/^["']|["']$/g, "");
+    }
+  } catch {
+    // .env is optional.
+  }
+}
 
 async function handleAnalyze(req, res) {
   const body = await readJson(req);
